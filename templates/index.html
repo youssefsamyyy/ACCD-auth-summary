@@ -1,0 +1,809 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>تسجيل / دخول</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/flag-icons/7.1.0/css/flag-icons.min.css" />
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: "Arial", sans-serif;
+    }
+
+    body {
+      direction: rtl;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      background: linear-gradient(135deg, #000, #555);
+    }
+
+    .container {
+      display: flex;
+      width: 850px;
+      height: 580px;
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 15px;
+      overflow: hidden;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+      backdrop-filter: blur(8px);
+    }
+
+    .image-section {
+      width: 50%;
+      background: #fff url("https://www.arabccd.org/uploads/_website/logo_5f705e56167b4.png") no-repeat center;
+      background-size: contain;
+    }
+
+    .form-section {
+      width: 50%;
+      background: #1b1b1b;
+      color: #fff;
+      padding: 40px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      transition: all 0.4s ease;
+    }
+
+    h2 {
+      text-align: center;
+      margin-bottom: 25px;
+      font-size: 22px;
+      border-bottom: 2px solid #fff;
+      padding-bottom: 10px;
+      display: inline-block;
+    }
+
+    .form-group {
+      margin-bottom: 15px;
+      position: relative;
+    }
+
+    .form-row {
+      display: flex;
+      gap: 10px;
+    }
+
+    .form-row .form-group {
+      flex: 1;
+    }
+
+    .form-group input,
+    .form-group select {
+      width: 100%;
+      padding: 10px;
+      border: none;
+      border-bottom: 2px solid #444;
+      background: transparent;
+      color: #fff;
+      font-size: 14px;
+      outline: none;
+      border-radius: 3px;
+    }
+
+    .form-group input::placeholder {
+      color: rgba(255, 255, 255, 0.7);
+    }
+
+    /* Dropdown clean style */
+    select {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background-color: #222;
+  border: 1px solid #555;
+  color: #fff;
+  border-radius: 6px;
+  padding: 10px 12px;
+  width: 100%;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+select option {
+  background-color: #222;
+  color: #fff;
+}
+
+select:focus {
+  border-color: #4ea5ff;
+  outline: none;
+}
+
+    .eye-icon {
+      position: absolute;
+      left: 8px;
+      top: 50%;
+      transform: translateY(-50%);
+      cursor: pointer;
+      font-size: 16px;
+      color: #fff;
+    }
+
+    input[type="password"] {
+      padding-left: 30px;
+    }
+
+    .btn {
+      width: 100%;
+      padding: 12px;
+      background: #fff;
+      color: #000;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 15px;
+      font-weight: bold;
+      transition: all 0.3s ease;
+      margin-top: 10px;
+    }
+
+    .btn:hover {
+      background: #ddd;
+    }
+
+    .btn:disabled {
+      background: #666;
+      cursor: not-allowed;
+    }
+
+    .toggle-text {
+      text-align: center;
+      margin-top: 15px;
+      font-size: 14px;
+    }
+
+    .toggle-text button {
+      background: none;
+      border: none;
+      color: #4ea5ff;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    .loading {
+      opacity: 0.7;
+      pointer-events: none;
+    }
+
+    .error-message {
+      color: #ff6b6b;
+      font-size: 12px;
+      margin-top: 5px;
+      text-align: right;
+    }
+
+    .success-message {
+      color: #4ecdc4;
+      font-size: 12px;
+      margin-top: 5px;
+      text-align: right;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .container {
+        flex-direction: column;
+        width: 95%;
+        height: auto;
+      }
+
+      .image-section {
+        display: none;
+      }
+
+      .form-section {
+        width: 100%;
+        padding: 25px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <div class="image-section"></div>
+
+    <div class="form-section">
+
+      <!-- Register Form -->
+      <form id="registerForm" onsubmit="return handleRegister(event)">
+        <h2>تسجيل حساب جديد</h2>
+
+        <div class="form-row">
+          <div class="form-group">
+            <input type="text" id="firstName" placeholder="الاسم الأول" required />
+            <div id="firstNameError" class="error-message"></div>
+          </div>
+          <div class="form-group">
+            <input type="text" id="lastName" placeholder="الاسم الأخير" required />
+            <div id="lastNameError" class="error-message"></div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <input type="email" id="email" placeholder="البريد الإلكتروني" required />
+          <div id="emailError" class="error-message"></div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <input type="password" id="password" placeholder="كلمة المرور" required />
+            <span class="eye-icon" onclick="togglePassword('password', this)">👁</span>
+            <div id="passwordError" class="error-message"></div>
+          </div>
+          <div class="form-group">
+            <input type="password" id="confirmPassword" placeholder="تأكيد كلمة المرور" required />
+            <span class="eye-icon" onclick="togglePassword('confirmPassword', this)">👁</span>
+            <div id="confirmPasswordError" class="error-message"></div>
+          </div>
+        </div>
+
+        <div class="form-group">
+         <select id="country" required>
+  <option value="">اختر البلد:</option>
+  <option value="AF">Afghanistan</option>
+    <option value="AX">Åland Islands</option>
+    <option value="AL">Albania</option>
+    <option value="DZ">Algeria</option>
+    <option value="AS">American Samoa</option>
+    <option value="AD">Andorra</option>
+    <option value="AO">Angola</option>
+    <option value="AI">Anguilla</option>
+    <option value="AQ">Antarctica</option>
+    <option value="AG">Antigua and Barbuda</option>
+    <option value="AR">Argentina</option>
+    <option value="AM">Armenia</option>
+    <option value="AW">Aruba</option>
+    <option value="AU">Australia</option>
+    <option value="AT">Austria</option>
+    <option value="AZ">Azerbaijan</option>
+    <option value="BS">Bahamas</option>
+    <option value="BH">Bahrain</option>
+    <option value="BD">Bangladesh</option>
+    <option value="BB">Barbados</option>
+    <option value="BY">Belarus</option>
+    <option value="BE">Belgium</option>
+    <option value="BZ">Belize</option>
+    <option value="BJ">Benin</option>
+    <option value="BM">Bermuda</option>
+    <option value="BT">Bhutan</option>
+    <option value="BO">Bolivia (Plurinational State of)</option>
+    <option value="BA">Bosnia and Herzegovina</option>
+    <option value="BW">Botswana</option>
+    <option value="BV">Bouvet Island</option>
+    <option value="BR">Brazil</option>
+    <option value="IO">British Indian Ocean Territory</option>
+    <option value="BN">Brunei Darussalam</option>
+    <option value="BG">Bulgaria</option>
+    <option value="BF">Burkina Faso</option>
+    <option value="BI">Burundi</option>
+    <option value="CV">Cabo Verde</option>
+    <option value="KH">Cambodia</option>
+    <option value="CM">Cameroon</option>
+    <option value="CA">Canada</option>
+    <option value="BQ">Caribbean Netherlands</option>
+    <option value="KY">Cayman Islands</option>
+    <option value="CF">Central African Republic</option>
+    <option value="TD">Chad</option>
+    <option value="CL">Chile</option>
+    <option value="CN">China</option>
+    <option value="CX">Christmas Island</option>
+    <option value="CC">Cocos (Keeling) Islands</option>
+    <option value="CO">Colombia</option>
+    <option value="KM">Comoros</option>
+    <option value="CG">Congo</option>
+    <option value="CD">Congo, Democratic Republic of the</option>
+    <option value="CK">Cook Islands</option>
+    <option value="CR">Costa Rica</option>
+    <option value="HR">Croatia</option>
+    <option value="CU">Cuba</option>
+    <option value="CW">Curaçao</option>
+    <option value="CY">Cyprus</option>
+    <option value="CZ">Czech Republic</option>
+    <option value="CI">Côte d'Ivoire</option>
+    <option value="DK">Denmark</option>
+    <option value="DJ">Djibouti</option>
+    <option value="DM">Dominica</option>
+    <option value="DO">Dominican Republic</option>
+    <option value="EC">Ecuador</option>
+    <option value="EG">Egypt</option>
+    <option value="SV">El Salvador</option>
+    <option value="GQ">Equatorial Guinea</option>
+    <option value="ER">Eritrea</option>
+    <option value="EE">Estonia</option>
+    <option value="SZ">Eswatini (Swaziland)</option>
+    <option value="ET">Ethiopia</option>
+    <option value="FK">Falkland Islands (Malvinas)</option>
+    <option value="FO">Faroe Islands</option>
+    <option value="FJ">Fiji</option>
+    <option value="FI">Finland</option>
+    <option value="FR">France</option>
+    <option value="GF">French Guiana</option>
+    <option value="PF">French Polynesia</option>
+    <option value="TF">French Southern Territories</option>
+    <option value="GA">Gabon</option>
+    <option value="GM">Gambia</option>
+    <option value="GE">Georgia</option>
+    <option value="DE">Germany</option>
+    <option value="GH">Ghana</option>
+    <option value="GI">Gibraltar</option>
+    <option value="GR">Greece</option>
+    <option value="GL">Greenland</option>
+    <option value="GD">Grenada</option>
+    <option value="GP">Guadeloupe</option>
+    <option value="GU">Guam</option>
+    <option value="GT">Guatemala</option>
+    <option value="GG">Guernsey</option>
+    <option value="GN">Guinea</option>
+    <option value="GW">Guinea-Bissau</option>
+    <option value="GY">Guyana</option>
+    <option value="HT">Haiti</option>
+    <option value="HM">Heard Island and Mcdonald Islands</option>
+    <option value="HN">Honduras</option>
+    <option value="HK">Hong Kong</option>
+    <option value="HU">Hungary</option>
+    <option value="IS">Iceland</option>
+    <option value="IN">India</option>
+    <option value="ID">Indonesia</option>
+    <option value="IR">Iran</option>
+    <option value="IQ">Iraq</option>
+    <option value="IE">Ireland</option>
+    <option value="IM">Isle of Man</option>
+    <option value="IL">Israel</option>
+    <option value="IT">Italy</option>
+    <option value="JM">Jamaica</option>
+    <option value="JP">Japan</option>
+    <option value="JE">Jersey</option>
+    <option value="JO">Jordan</option>
+    <option value="KZ">Kazakhstan</option>
+    <option value="KE">Kenya</option>
+    <option value="KI">Kiribati</option>
+    <option value="KP">Korea, North</option>
+    <option value="KR">Korea, South</option>
+    <option value="XK">Kosovo</option>
+    <option value="KW">Kuwait</option>
+    <option value="KG">Kyrgyzstan</option>
+    <option value="LA">Lao People's Democratic Republic</option>
+    <option value="LV">Latvia</option>
+    <option value="LB">Lebanon</option>
+    <option value="LS">Lesotho</option>
+    <option value="LR">Liberia</option>
+    <option value="LY">Libya</option>
+    <option value="LI">Liechtenstein</option>
+    <option value="LT">Lithuania</option>
+    <option value="LU">Luxembourg</option>
+    <option value="MO">Macao</option>
+    <option value="MK">Macedonia North</option>
+    <option value="MG">Madagascar</option>
+    <option value="MW">Malawi</option>
+    <option value="MY">Malaysia</option>
+    <option value="MV">Maldives</option>
+    <option value="ML">Mali</option>
+    <option value="MT">Malta</option>
+    <option value="MH">Marshall Islands</option>
+    <option value="MQ">Martinique</option>
+    <option value="MR">Mauritania</option>
+    <option value="MU">Mauritius</option>
+    <option value="YT">Mayotte</option>
+    <option value="MX">Mexico</option>
+    <option value="FM">Micronesia</option>
+    <option value="MD">Moldova</option>
+    <option value="MC">Monaco</option>
+    <option value="MN">Mongolia</option>
+    <option value="ME">Montenegro</option>
+    <option value="MS">Montserrat</option>
+    <option value="MA">Morocco</option>
+    <option value="MZ">Mozambique</option>
+    <option value="MM">Myanmar (Burma)</option>
+    <option value="NA">Namibia</option>
+    <option value="NR">Nauru</option>
+    <option value="NP">Nepal</option>
+    <option value="NL">Netherlands</option>
+    <option value="AN">Netherlands Antilles</option>
+    <option value="NC">New Caledonia</option>
+    <option value="NZ">New Zealand</option>
+    <option value="NI">Nicaragua</option>
+    <option value="NE">Niger</option>
+    <option value="NG">Nigeria</option>
+    <option value="NU">Niue</option>
+    <option value="NF">Norfolk Island</option>
+    <option value="MP">Northern Mariana Islands</option>
+    <option value="NO">Norway</option>
+    <option value="OM">Oman</option>
+    <option value="PK">Pakistan</option>
+    <option value="PW">Palau</option>
+    <option value="PS">Palestine</option>
+    <option value="PA">Panama</option>
+    <option value="PG">Papua New Guinea</option>
+    <option value="PY">Paraguay</option>
+    <option value="PE">Peru</option>
+    <option value="PH">Philippines</option>
+    <option value="PN">Pitcairn Islands</option>
+    <option value="PL">Poland</option>
+    <option value="PT">Portugal</option>
+    <option value="PR">Puerto Rico</option>
+    <option value="QA">Qatar</option>
+    <option value="RE">Reunion</option>
+    <option value="RO">Romania</option>
+    <option value="RU">Russian Federation</option>
+    <option value="RW">Rwanda</option>
+    <option value="BL">Saint Barthelemy</option>
+    <option value="SH">Saint Helena</option>
+    <option value="KN">Saint Kitts and Nevis</option>
+    <option value="LC">Saint Lucia</option>
+    <option value="MF">Saint Martin</option>
+    <option value="PM">Saint Pierre and Miquelon</option>
+    <option value="VC">Saint Vincent and the Grenadines</option>
+    <option value="WS">Samoa</option>
+    <option value="SM">San Marino</option>
+    <option value="ST">Sao Tome and Principe</option>
+    <option value="SA">Saudi Arabia</option>
+    <option value="SN">Senegal</option>
+    <option value="RS">Serbia</option>
+    <option value="CS">Serbia and Montenegro</option>
+    <option value="SC">Seychelles</option>
+    <option value="SL">Sierra Leone</option>
+    <option value="SG">Singapore</option>
+    <option value="SX">Sint Maarten</option>
+    <option value="SK">Slovakia</option>
+    <option value="SI">Slovenia</option>
+    <option value="SB">Solomon Islands</option>
+    <option value="SO">Somalia</option>
+    <option value="ZA">South Africa</option>
+    <option value="GS">South Georgia and the South Sandwich Islands</option>
+    <option value="SS">South Sudan</option>
+    <option value="ES">Spain</option>
+    <option value="LK">Sri Lanka</option>
+    <option value="SD">Sudan</option>
+    <option value="SR">Suriname</option>
+    <option value="SJ">Svalbard and Jan Mayen</option>
+    <option value="SE">Sweden</option>
+    <option value="CH">Switzerland</option>
+    <option value="SY">Syria</option>
+    <option value="TW">Taiwan</option>
+    <option value="TJ">Tajikistan</option>
+    <option value="TZ">Tanzania</option>
+    <option value="TH">Thailand</option>
+    <option value="TL">Timor-Leste</option>
+    <option value="TG">Togo</option>
+    <option value="TK">Tokelau</option>
+    <option value="TO">Tonga</option>
+    <option value="TT">Trinidad and Tobago</option>
+    <option value="TN">Tunisia</option>
+    <option value="TR">Turkey (Türkiye)</option>
+    <option value="TM">Turkmenistan</option>
+    <option value="TC">Turks and Caicos Islands</option>
+    <option value="TV">Tuvalu</option>
+    <option value="UM">U.S. Outlying Islands</option>
+    <option value="UG">Uganda</option>
+    <option value="UA">Ukraine</option>
+    <option value="AE">United Arab Emirates</option>
+    <option value="GB">United Kingdom</option>
+    <option value="US">United States</option>
+    <option value="UY">Uruguay</option>
+    <option value="UZ">Uzbekistan</option>
+    <option value="VU">Vanuatu</option>
+    <option value="VA">Vatican City Holy See</option>
+    <option value="VE">Venezuela</option>
+    <option value="VN">Vietnam</option>
+    <option value="VG">Virgin Islands, British</option>
+    <option value="VI">Virgin Islands, U.S</option>
+    <option value="WF">Wallis and Futuna</option>
+    <option value="EH">Western Sahara</option>
+    <option value="YE">Yemen</option>
+    <option value="ZM">Zambia</option>
+    <option value="ZW">Zimbabwe</option>
+</select>
+          <div id="countryError" class="error-message"></div>
+        </div>
+
+        <div class="form-group">
+          <input type="tel" id="phone" placeholder="رقم الهاتف (اختياري)" />
+          <div id="phoneError" class="error-message"></div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <input type="text" id="workplace" placeholder="جهة العمل" required />
+            <div id="workplaceError" class="error-message"></div>
+          </div>
+          <div class="form-group">
+            <input type="text" id="specialty" placeholder="التخصص" required />
+            <div id="specialtyError" class="error-message"></div>
+          </div>
+        </div>
+
+        <button type="submit" class="btn" id="registerBtn">تسجيل</button>
+
+        <div class="toggle-text">
+          لديك حساب بالفعل؟
+          <button type="button" onclick="toggleForms()">تسجيل الدخول</button>
+        </div>
+      </form>
+
+      <!-- Login Form -->
+      <form id="loginForm" class="hidden" onsubmit="return handleLogin(event)">
+        <h2>تسجيل الدخول</h2>
+
+        <div class="form-group">
+          <input type="email" id="loginEmail" placeholder="البريد الإلكتروني" required />
+          <div id="loginEmailError" class="error-message"></div>
+        </div>
+
+        <div class="form-group">
+          <input type="password" id="loginPassword" placeholder="كلمة المرور" required />
+          <span class="eye-icon" onclick="togglePassword('loginPassword', this)">👁</span>
+          <div id="loginPasswordError" class="error-message"></div>
+        </div>
+
+        <button type="submit" class="btn" id="loginBtn">دخول</button>
+
+        <div class="toggle-text">
+          لا تمتلك حسابًا؟
+          <button type="button" onclick="toggleForms()">تسجيل جديد</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    function togglePassword(id, icon) {
+      const input = document.getElementById(id);
+      if (input.type === "password") {
+        input.type = "text";
+        icon.textContent = "🙈";
+      } else {
+        input.type = "password";
+        icon.textContent = "👁";
+      }
+    }
+
+    function toggleForms() {
+      document.getElementById("registerForm").classList.toggle("hidden");
+      document.getElementById("loginForm").classList.toggle("hidden");
+      clearErrors();
+    }
+
+    function clearErrors() {
+      // Clear all error messages
+      const errorElements = document.querySelectorAll('.error-message');
+      errorElements.forEach(element => {
+        element.textContent = '';
+      });
+    }
+
+    function showError(fieldId, message) {
+      const errorElement = document.getElementById(fieldId + 'Error');
+      if (errorElement) {
+        errorElement.textContent = message;
+      }
+    }
+
+    function setLoading(button, isLoading) {
+      if (isLoading) {
+        button.disabled = true;
+        button.textContent = 'جاري المعالجة...';
+        button.classList.add('loading');
+      } else {
+        button.disabled = false;
+        button.textContent = button.id === 'registerBtn' ? 'تسجيل' : 'دخول';
+        button.classList.remove('loading');
+      }
+    }
+
+    async function handleRegister(event) {
+      event.preventDefault();
+      
+      // Clear previous errors
+      clearErrors();
+      
+      const formData = {
+        firstName: document.getElementById("firstName").value.trim(),
+        lastName: document.getElementById("lastName").value.trim(),
+        email: document.getElementById("email").value.trim(),
+        password: document.getElementById("password").value,
+        confirmPassword: document.getElementById("confirmPassword").value,
+        country: document.getElementById("country").value,
+        phone: document.getElementById("phone").value.trim(),
+        workplace: document.getElementById("workplace").value.trim(),
+        specialty: document.getElementById("specialty").value.trim()
+      };
+
+      // Basic client-side validation
+      let hasErrors = false;
+
+      if (!formData.firstName) {
+        showError('firstName', 'الاسم الأول مطلوب');
+        hasErrors = true;
+      }
+
+      if (!formData.lastName) {
+        showError('lastName', 'الاسم الأخير مطلوب');
+        hasErrors = true;
+      }
+
+      if (!formData.email) {
+        showError('email', 'البريد الإلكتروني مطلوب');
+        hasErrors = true;
+      } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+        showError('email', 'البريد الإلكتروني غير صالح');
+        hasErrors = true;
+      }
+
+      if (!formData.password) {
+        showError('password', 'كلمة المرور مطلوبة');
+        hasErrors = true;
+      } else if (formData.password.length < 6) {
+        showError('password', 'كلمة المرور يجب أن تكون 6 أحرف على الأقل');
+        hasErrors = true;
+      }
+
+      if (!formData.confirmPassword) {
+        showError('confirmPassword', 'تأكيد كلمة المرور مطلوب');
+        hasErrors = true;
+      } else if (formData.password !== formData.confirmPassword) {
+        showError('confirmPassword', 'كلمتا المرور غير متطابقتين');
+        hasErrors = true;
+      }
+
+      if (!formData.country) {
+        showError('country', 'البلد مطلوب');
+        hasErrors = true;
+      }
+
+      if (!formData.workplace) {
+        showError('workplace', 'جهة العمل مطلوبة');
+        hasErrors = true;
+      }
+
+      if (!formData.specialty) {
+        showError('specialty', 'التخصص مطلوب');
+        hasErrors = true;
+      }
+
+      if (hasErrors) {
+        return false;
+      }
+
+      const registerBtn = document.getElementById('registerBtn');
+      setLoading(registerBtn, true);
+
+      try {
+        const response = await fetch('/register', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(formData)
+        });
+
+        const result = await response.json();
+        
+        if (result.success) {
+          alert(result.message);
+          window.location.href = result.redirect;
+        } else {
+          // Show server-side errors
+          if (result.message.includes('البريد الإلكتروني')) {
+            showError('email', result.message);
+          } else if (result.message.includes('كلمتا المرور')) {
+            showError('confirmPassword', result.message);
+          } else {
+            alert(result.message);
+          }
+        }
+      } catch (error) {
+        console.error('Error:', error);
+        alert('حدث خطأ في الاتصال بالخادم');
+      } finally {
+        setLoading(registerBtn, false);
+      }
+    }
+
+    async function handleLogin(event) {
+      event.preventDefault();
+      
+      // Clear previous errors
+      clearErrors();
+      
+      const formData = {
+        email: document.getElementById("loginEmail").value.trim(),
+        password: document.getElementById("loginPassword").value
+      };
+
+      // Basic client-side validation
+      let hasErrors = false;
+
+      if (!formData.email) {
+        showError('loginEmail', 'البريد الإلكتروني مطلوب');
+        hasErrors = true;
+      }
+
+      if (!formData.password) {
+        showError('loginPassword', 'كلمة المرور مطلوبة');
+        hasErrors = true;
+      }
+
+      if (hasErrors) {
+        return false;
+      }
+
+      const loginBtn = document.getElementById('loginBtn');
+      setLoading(loginBtn, true);
+
+      try {
+        const response = await fetch('/login', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(formData)
+        });
+
+        const result = await response.json();
+        
+        if (result.success) {
+          alert(result.message);
+          window.location.href = result.redirect;
+        } else {
+          // Show server-side errors
+          if (result.message.includes('البريد الإلكتروني') || result.message.includes('كلمة المرور')) {
+            showError('loginEmail', '');
+            showError('loginPassword', result.message);
+          } else {
+            alert(result.message);
+          }
+        }
+      } catch (error) {
+        console.error('Error:', error);
+        alert('حدث خطأ في الاتصال بالخادم');
+      } finally {
+        setLoading(loginBtn, false);
+      }
+    }
+
+    // Email validation on blur
+    document.getElementById('email')?.addEventListener('blur', async function() {
+      const email = this.value.trim();
+      const emailError = document.getElementById('emailError');
+      
+      if (!email) return;
+      
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        emailError.textContent = 'البريد الإلكتروني غير صالح';
+        return;
+      }
+      
+      try {
+        const response = await fetch('/check-email', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ email: email })
+        });
+        
+        const result = await response.json();
+        if (result.exists) {
+          emailError.textContent = 'البريد الإلكتروني مسجل مسبقاً';
+        } else {
+          emailError.textContent = '';
+        }
+      } catch (error) {
+        console.error('Error checking email:', error);
+      }
+    });
+  </script>
+</body>
+</html>
