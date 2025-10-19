@@ -135,7 +135,7 @@ def register():
         return jsonify({
             'success': True,
             'message': 'تم التسجيل بنجاح ✅',
-            'redirect': 'https://smart-assistant.arabccd.org/'
+            'redirect': 'https://summary.arabccd.org/'
         })
     except Exception as e:
         print(f"⚠️ Registration error: {e}")
