@@ -557,253 +557,229 @@ select:focus {
     </div>
   </div>
 
-  <script>
-    function togglePassword(id, icon) {
-      const input = document.getElementById(id);
-      if (input.type === "password") {
-        input.type = "text";
-        icon.textContent = "🙈";
-      } else {
-        input.type = "password";
-        icon.textContent = "👁";
-      }
+ <script>
+  function togglePassword(id, icon) {
+    const input = document.getElementById(id);
+    if (input.type === "password") {
+      input.type = "text";
+      icon.textContent = "🙈";
+    } else {
+      input.type = "password";
+      icon.textContent = "👁";
     }
+  }
 
-    function toggleForms() {
-      document.getElementById("registerForm").classList.toggle("hidden");
-      document.getElementById("loginForm").classList.toggle("hidden");
-      clearErrors();
-    }
+  function toggleForms() {
+    document.getElementById("registerForm").classList.toggle("hidden");
+    document.getElementById("loginForm").classList.toggle("hidden");
+    clearErrors();
+  }
 
-    function clearErrors() {
-      // Clear all error messages
-      const errorElements = document.querySelectorAll('.error-message');
-      errorElements.forEach(element => {
-        element.textContent = '';
-      });
-    }
-
-    function showError(fieldId, message) {
-      const errorElement = document.getElementById(fieldId + 'Error');
-      if (errorElement) {
-        errorElement.textContent = message;
-      }
-    }
-
-    function setLoading(button, isLoading) {
-      if (isLoading) {
-        button.disabled = true;
-        button.textContent = 'جاري المعالجة...';
-        button.classList.add('loading');
-      } else {
-        button.disabled = false;
-        button.textContent = button.id === 'registerBtn' ? 'تسجيل' : 'دخول';
-        button.classList.remove('loading');
-      }
-    }
-
-    async function handleRegister(event) {
-      event.preventDefault();
-      
-      // Clear previous errors
-      clearErrors();
-      
-      const formData = {
-        firstName: document.getElementById("firstName").value.trim(),
-        lastName: document.getElementById("lastName").value.trim(),
-        email: document.getElementById("email").value.trim(),
-        password: document.getElementById("password").value,
-        confirmPassword: document.getElementById("confirmPassword").value,
-        country: document.getElementById("country").value,
-        phone: document.getElementById("phone").value.trim(),
-        workplace: document.getElementById("workplace").value.trim(),
-        specialty: document.getElementById("specialty").value.trim()
-      };
-
-      // Basic client-side validation
-      let hasErrors = false;
-
-      if (!formData.firstName) {
-        showError('firstName', 'الاسم الأول مطلوب');
-        hasErrors = true;
-      }
-
-      if (!formData.lastName) {
-        showError('lastName', 'الاسم الأخير مطلوب');
-        hasErrors = true;
-      }
-
-      if (!formData.email) {
-        showError('email', 'البريد الإلكتروني مطلوب');
-        hasErrors = true;
-      } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-        showError('email', 'البريد الإلكتروني غير صالح');
-        hasErrors = true;
-      }
-
-      if (!formData.password) {
-        showError('password', 'كلمة المرور مطلوبة');
-        hasErrors = true;
-      } else if (formData.password.length < 6) {
-        showError('password', 'كلمة المرور يجب أن تكون 6 أحرف على الأقل');
-        hasErrors = true;
-      }
-
-      if (!formData.confirmPassword) {
-        showError('confirmPassword', 'تأكيد كلمة المرور مطلوب');
-        hasErrors = true;
-      } else if (formData.password !== formData.confirmPassword) {
-        showError('confirmPassword', 'كلمتا المرور غير متطابقتين');
-        hasErrors = true;
-      }
-
-      if (!formData.country) {
-        showError('country', 'البلد مطلوب');
-        hasErrors = true;
-      }
-
-      if (!formData.workplace) {
-        showError('workplace', 'جهة العمل مطلوبة');
-        hasErrors = true;
-      }
-
-      if (!formData.specialty) {
-        showError('specialty', 'التخصص مطلوب');
-        hasErrors = true;
-      }
-
-      if (hasErrors) {
-        return false;
-      }
-
-      const registerBtn = document.getElementById('registerBtn');
-      setLoading(registerBtn, true);
-
-      try {
-        const response = await fetch('/register', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(formData)
-        });
-
-        const result = await response.json();
-        
-        if (result.success) {
-          alert(result.message);
-          window.location.href = result.redirect;
-        } else {
-          // Show server-side errors
-          if (result.message.includes('البريد الإلكتروني')) {
-            showError('email', result.message);
-          } else if (result.message.includes('كلمتا المرور')) {
-            showError('confirmPassword', result.message);
-          } else {
-            alert(result.message);
-          }
-        }
-      } catch (error) {
-        console.error('Error:', error);
-        alert('حدث خطأ في الاتصال بالخادم');
-      } finally {
-        setLoading(registerBtn, false);
-      }
-    }
-
-    async function handleLogin(event) {
-      event.preventDefault();
-      
-      // Clear previous errors
-      clearErrors();
-      
-      const formData = {
-        email: document.getElementById("loginEmail").value.trim(),
-        password: document.getElementById("loginPassword").value
-      };
-
-      // Basic client-side validation
-      let hasErrors = false;
-
-      if (!formData.email) {
-        showError('loginEmail', 'البريد الإلكتروني مطلوب');
-        hasErrors = true;
-      }
-
-      if (!formData.password) {
-        showError('loginPassword', 'كلمة المرور مطلوبة');
-        hasErrors = true;
-      }
-
-      if (hasErrors) {
-        return false;
-      }
-
-      const loginBtn = document.getElementById('loginBtn');
-      setLoading(loginBtn, true);
-
-      try {
-        const response = await fetch('/login', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(formData)
-        });
-
-        const result = await response.json();
-        
-        if (result.success) {
-          alert(result.message);
-          window.location.href = result.redirect;
-        } else {
-          // Show server-side errors
-          if (result.message.includes('البريد الإلكتروني') || result.message.includes('كلمة المرور')) {
-            showError('loginEmail', '');
-            showError('loginPassword', result.message);
-          } else {
-            alert(result.message);
-          }
-        }
-      } catch (error) {
-        console.error('Error:', error);
-        alert('حدث خطأ في الاتصال بالخادم');
-      } finally {
-        setLoading(loginBtn, false);
-      }
-    }
-
-    // Email validation on blur
-    document.getElementById('email')?.addEventListener('blur', async function() {
-      const email = this.value.trim();
-      const emailError = document.getElementById('emailError');
-      
-      if (!email) return;
-      
-      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-        emailError.textContent = 'البريد الإلكتروني غير صالح';
-        return;
-      }
-      
-      try {
-        const response = await fetch('/check-email', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ email: email })
-        });
-        
-        const result = await response.json();
-        if (result.exists) {
-          emailError.textContent = 'البريد الإلكتروني مسجل مسبقاً';
-        } else {
-          emailError.textContent = '';
-        }
-      } catch (error) {
-        console.error('Error checking email:', error);
-      }
+  function clearErrors() {
+    const errorElements = document.querySelectorAll('.error-message');
+    errorElements.forEach(element => {
+      element.textContent = '';
     });
-  </script>
+  }
+
+  function showError(fieldId, message) {
+    const errorElement = document.getElementById(fieldId + 'Error');
+    if (errorElement) {
+      errorElement.textContent = message;
+    }
+  }
+
+  function setLoading(button, isLoading) {
+    if (isLoading) {
+      button.disabled = true;
+      button.textContent = 'جاري المعالجة...';
+      button.classList.add('loading');
+    } else {
+      button.disabled = false;
+      button.textContent = button.id === 'registerBtn' ? 'تسجيل' : 'دخول';
+      button.classList.remove('loading');
+    }
+  }
+
+  async function handleRegister(event) {
+    event.preventDefault();
+    clearErrors();
+
+    const formData = {
+      firstName: document.getElementById("firstName").value.trim(),
+      lastName: document.getElementById("lastName").value.trim(),
+      email: document.getElementById("email").value.trim(),
+      password: document.getElementById("password").value,
+      confirmPassword: document.getElementById("confirmPassword").value,
+      country: document.getElementById("country").value,
+      phone: document.getElementById("phone").value.trim(),
+      workplace: document.getElementById("workplace").value.trim(),
+      specialty: document.getElementById("specialty").value.trim()
+    };
+
+    // === Client-side validation ===
+    let hasErrors = false;
+
+    if (!formData.firstName) {
+      showError('firstName', 'الاسم الأول مطلوب');
+      hasErrors = true;
+    }
+
+    if (!formData.lastName) {
+      showError('lastName', 'الاسم الأخير مطلوب');
+      hasErrors = true;
+    }
+
+    if (!formData.email) {
+      showError('email', 'البريد الإلكتروني مطلوب');
+      hasErrors = true;
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+      showError('email', 'البريد الإلكتروني غير صالح');
+      hasErrors = true;
+    }
+
+    if (!formData.password) {
+      showError('password', 'كلمة المرور مطلوبة');
+      hasErrors = true;
+    } else if (formData.password.length < 6) {
+      showError('password', 'كلمة المرور يجب أن تكون 6 أحرف على الأقل');
+      hasErrors = true;
+    }
+
+    if (!formData.confirmPassword) {
+      showError('confirmPassword', 'تأكيد كلمة المرور مطلوب');
+      hasErrors = true;
+    } else if (formData.password !== formData.confirmPassword) {
+      showError('confirmPassword', 'كلمتا المرور غير متطابقتين');
+      hasErrors = true;
+    }
+
+    if (!formData.country) {
+      showError('country', 'البلد مطلوب');
+      hasErrors = true;
+    }
+
+    if (!formData.workplace) {
+      showError('workplace', 'جهة العمل مطلوبة');
+      hasErrors = true;
+    }
+
+    if (!formData.specialty) {
+      showError('specialty', 'التخصص مطلوب');
+      hasErrors = true;
+    }
+
+    if (hasErrors) return false;
+
+    const registerBtn = document.getElementById('registerBtn');
+    setLoading(registerBtn, true);
+
+    try {
+      const response = await fetch('/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData)
+      });
+
+      const result = await response.json();
+      
+      if (result.success && result.redirect) {
+        // ✅ Automatic redirect without message
+        window.location.href = result.redirect;
+      } else if (result.message) {
+        if (result.message.includes('البريد الإلكتروني')) {
+          showError('email', result.message);
+        } else if (result.message.includes('كلمتا المرور')) {
+          showError('confirmPassword', result.message);
+        }
+      }
+    } catch (error) {
+      console.error('Error:', error);
+    } finally {
+      setLoading(registerBtn, false);
+    }
+  }
+
+  async function handleLogin(event) {
+    event.preventDefault();
+    clearErrors();
+
+    const formData = {
+      email: document.getElementById("loginEmail").value.trim(),
+      password: document.getElementById("loginPassword").value
+    };
+
+    let hasErrors = false;
+
+    if (!formData.email) {
+      showError('loginEmail', 'البريد الإلكتروني مطلوب');
+      hasErrors = true;
+    }
+
+    if (!formData.password) {
+      showError('loginPassword', 'كلمة المرور مطلوبة');
+      hasErrors = true;
+    }
+
+    if (hasErrors) return false;
+
+    const loginBtn = document.getElementById('loginBtn');
+    setLoading(loginBtn, true);
+
+    try {
+      const response = await fetch('/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData)
+      });
+
+      const result = await response.json();
+
+      if (result.success && result.redirect) {
+        // ✅ Automatic redirect without message
+        window.location.href = result.redirect;
+      } else if (result.message) {
+        if (result.message.includes('البريد الإلكتروني') || result.message.includes('كلمة المرور')) {
+          showError('loginPassword', result.message);
+        }
+      }
+    } catch (error) {
+      console.error('Error:', error);
+    } finally {
+      setLoading(loginBtn, false);
+    }
+  }
+
+  // === Email validation on blur ===
+  document.getElementById('email')?.addEventListener('blur', async function() {
+    const email = this.value.trim();
+    const emailError = document.getElementById('emailError');
+    
+    if (!email) return;
+    
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      emailError.textContent = 'البريد الإلكتروني غير صالح';
+      return;
+    }
+    
+    try {
+      const response = await fetch('/check-email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: email })
+      });
+      
+      const result = await response.json();
+      if (result.exists) {
+        emailError.textContent = 'البريد الإلكتروني مسجل مسبقاً';
+      } else {
+        emailError.textContent = '';
+      }
+    } catch (error) {
+      console.error('Error checking email:', error);
+    }
+  });
+</script>
+
 </body>
 </html>
